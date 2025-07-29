@@ -1,0 +1,48 @@
+name: Train Gomoku AI Model
+
+on:
+  push:
+    branches:
+      - main # Triggers the workflow on push events to the main branch
+  workflow_dispatch: # Allows you to run this workflow manually from the Actions tab
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+      working-directory: ./training
+
+    - name: Prepare data using your script
+      id: prepare_data
+      run: |
+        # This script will process SGFs from training/data/sgf
+        # and create training/data/gomoku_data.npz
+        python data/process_sgf.py
+      working-directory: ./training
+
+    - name: Train the model
+      id: train_model
+      run: |
+        # This script loads the .npz file and trains the model,
+        # then exports it to gomoku_model.onnx
+        python train.py
+      working-directory: ./training
+
+    - name: Upload Model as Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: gomoku-model
+        path: training/gomoku_model.onnx # Path to the model file to upload

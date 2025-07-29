@@ -1,0 +1,7 @@
+torch
+numpy
+python-sgf
+onnx
+onnxruntime
+tqdm
+scikit-learn
